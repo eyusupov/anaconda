@@ -28,6 +28,9 @@ from pykickstart.commands.autopart import F29_AutoPart as AutoPart
 from pykickstart.commands.autostep import FC3_AutoStep as AutoStep
 from pykickstart.commands.bootloader import F29_Bootloader as Bootloader
 from pykickstart.commands.btrfs import F23_BTRFS as BTRFS
+from pykickstart.commands.container_boot_image import F29_ContainerBootImage as ContainerBootImage
+from pykickstart.commands.container_registries import F29_ContainerRegistries as ContainerRegistries
+from pykickstart.commands.container_storage import F29_ContainerStorage as ContainerStorage
 from pykickstart.commands.cdrom import FC3_Cdrom as Cdrom
 from pykickstart.commands.clearpart import F28_ClearPart as ClearPart
 from pykickstart.commands.displaymode import F26_DisplayMode as DisplayMode
@@ -86,6 +89,7 @@ from pykickstart.commands.zfcp import F14_ZFCP as ZFCP
 
 # Supported kickstart data.
 from pykickstart.commands.btrfs import F23_BTRFSData as BTRFSData
+from pykickstart.commands.container_boot_options import F29_ContainerBootOptions as ContainerBootOptions
 from pykickstart.commands.driverdisk import F14_DriverDiskData as DriverDiskData
 from pykickstart.commands.device import F8_DeviceData as DeviceData
 from pykickstart.commands.dmraid import FC6_DmRaidData as DmRaidData
