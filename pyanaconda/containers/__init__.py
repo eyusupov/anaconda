@@ -1,6 +1,6 @@
 # TODO: implement it as a Kickstart module
 from configparser import ConfigParser
-from core import util
+from pyanaconda.core import util
 import json
 
 def configure_registries(urls, path='/etc/containers/registries.conf'):
