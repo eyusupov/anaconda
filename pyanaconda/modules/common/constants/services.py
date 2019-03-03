@@ -20,7 +20,7 @@ from pyanaconda.dbus import SystemBus
 from pyanaconda.dbus.identifier import DBusServiceIdentifier
 from pyanaconda.modules.common.constants.namespaces import BOSS_NAMESPACE, TIMEZONE_NAMESPACE, \
     NETWORK_NAMESPACE, LOCALIZATION_NAMESPACE, SECURITY_NAMESPACE, USERS_NAMESPACE, BAZ_NAMESPACE, \
-    PAYLOAD_NAMESPACE, STORAGE_NAMESPACE, SERVICES_NAMESPACE
+    PAYLOAD_NAMESPACE, STORAGE_NAMESPACE, SERVICES_NAMESPACE, CONTAINERS_NAMESPACE
 
 # Anaconda services.
 
@@ -62,6 +62,10 @@ STORAGE = DBusServiceIdentifier(
 
 SERVICES = DBusServiceIdentifier(
     namespace=SERVICES_NAMESPACE
+)
+
+CONTAINERS = DBusServiceIdentifier(
+    namespace=CONTAINERS_NAMESPACE
 )
 
 # System services.

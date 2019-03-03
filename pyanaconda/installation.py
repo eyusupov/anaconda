@@ -25,7 +25,7 @@ from pyanaconda.core.configuration.anaconda import conf
 from pyanaconda.core.constants import BOOTLOADER_DISABLED
 from pyanaconda.modules.common.constants.objects import BOOTLOADER, AUTO_PARTITIONING, \
     MANUAL_PARTITIONING
-from pyanaconda.modules.common.constants.services import STORAGE
+from pyanaconda.modules.common.constants.services import STORAGE, CONTAINERS
 from pyanaconda.storage.kickstart import update_storage_ksdata
 from pyanaconda.storage.installation import turn_on_filesystems
 from pyanaconda.bootloader.installation import write_boot_loader
@@ -34,7 +34,6 @@ from pyanaconda.progress import progress_message, progress_step, progress_comple
 from pyanaconda.users import Users
 from pyanaconda import flags
 from pyanaconda.core import util
-from pyanaconda import containers
 from pyanaconda import timezone
 from pyanaconda import network
 from pyanaconda import screen_access
@@ -296,21 +295,24 @@ def doInstall(storage, payload, ksdata):
     pre_install_scripts.append(Task("Run %pre-install scripts", runPreInstallScripts, (ksdata.scripts,)))
     installation_queue.append(pre_install_scripts)
 
-    if ksdata.container_registries.seen or ksdata.container_storage.seen or ksdata.container_boot_image.seen:
+    containers = CONTAINERS.get_proxy()
+    # TODO - implement step conditions in the module
+    if (containers.Registries() or containers.Storage() or containers.BootImage()) is not None:
         boot_container = TaskQueue("Boot container tasks", N_("Configuring boot container"))
         installation_queue.append(boot_container)
 
     # on install OS, initialize registries and storage for use by podman
-    if ksdata.container_registries.seen:
-        boot_container.append(Task("Configure image registries", containers.configure_registries, (ksdata.container_registries.urls)))
+    if containers.Registries() is not None:
+        boot_container.append(Task("Configure image registries", containers.ConfigureRegistries))
 
-    if ksdata.container_storage.seen:
-        boot_container.append(Task("Configure image registries", containers.configure_storage, (ksdata.container_storage.options)))
+    if containers.Storage() is not None:
+        boot_container.append(Task("Configure containers storage", containers.ConfigureStorage))
 
     # If container boot image is set
-    if ksdata.container_boot_image.seen:
-        boot_container.append(Task("Pull boot container image", containers.pull_image, (ksdata.container_boot_image.image)))
-        boot_container.append(Task("Setup boot container", setup_boot_container))
+    if containers.BootImage() is not None:
+        boot_container.append(Task("Pull boot container image", containers.PullBootImage))
+        boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
+        util.setSysroot(containers.BootContainerMountPoint)
 
     # Do packaging.
 
@@ -352,16 +354,6 @@ def doInstall(storage, payload, ksdata):
         payload.requirements.add_packages(payload.langpacks(), reason="langpacks", strong=False)
         payload.preInstall()
 
-    def setup_boot_container():
-        containers.create(ksdata.container_boot_image.image, 'boot-container', ksdata.container_boot_options.options)
-        mountpoint = containers.mount('boot-container')
-        util.setSysroot(mountpoint)
-
-    def commit_boot_container():
-        # TODO: move to constants
-        containers.unmount('boot-container')
-        containers.commit('boot-container', 'boot:latest')
-
     pre_install.append(Task("Find additional packages & run preInstall()", run_pre_install))
     installation_queue.append(pre_install)
 
@@ -386,8 +378,8 @@ def doInstall(storage, payload, ksdata):
 
     # Commit boot container
     if ksdata.container_boot_image.seen:
-        boot_container = TaskQueue("Commit boot container", (N_("Commiting boot container")))
-        boot_container.append(Task("Commit boot container", commit_boot_container))
+        boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
+        boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
         installation_queue.append(boot_container)
 
     # Create snapshot

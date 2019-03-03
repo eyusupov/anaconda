@@ -61,6 +61,11 @@ USERS_NAMESPACE = (
     "Users"
 )
 
+CONTAINERS_NAMESPACE = (
+    *MODULES_NAMESPACE,
+    "Containers"
+)
+
 PAYLOAD_NAMESPACE = (
     *MODULES_NAMESPACE,
     "Payload"

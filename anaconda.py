@@ -747,27 +747,6 @@ if __name__ == "__main__":
     # add additional repositories from the cmdline to kickstart data
     anaconda.add_additional_repositories_to_ksdata()
 
-    # on install OS, initialize registries and storage for use by podman
-    from pyanaconda import containers
-
-    if ksdata.container_registries.seen:
-        containers.setup_registries(ksdata)
-
-    if ksdata.container_storage.seen:
-        containers.setup_storage(ksdata)
-
-    # If container boot image is set
-    if ksdata.container_boot_image.seen:
-        threadMgr.add(AnacondaThread(name=constants.THREAD_STORAGE,
-          target=containers.pull_image, args=(ksdata, anaconda.protected)))
-
-        # TODO: wait until images are pulled
-        containers.create(ksdata.container_boot_image.image,
-                ksdata.container_boot_options.options)
-
-        mountpoint = containers.mount(ksdata)
-        util.setSysroot(mountpoint)
-
     # Fallback to default for interactive or for a kickstart with no installation method.
     fallback = not (flags.automatedInstall and ksdata.method.method)
     payloadMgr.restartThread(anaconda.storage, ksdata, anaconda.payload, fallback=fallback)

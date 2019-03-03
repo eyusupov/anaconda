@@ -139,7 +139,6 @@ AC_CONFIG_FILES([Makefile
                  pyanaconda/Makefile
                  pyanaconda/version.py
                  pyanaconda/bootloader/Makefile
-                 pyanaconda/containers/Makefile
                  pyanaconda/core/Makefile
                  pyanaconda/core/kickstart/Makefile
                  pyanaconda/core/configuration/Makefile
@@ -171,6 +170,7 @@ AC_CONFIG_FILES([Makefile
                  pyanaconda/modules/boss/Makefile
                  pyanaconda/modules/boss/install_manager/Makefile
                  pyanaconda/modules/boss/kickstart_manager/Makefile
+                 pyanaconda/modules/containers/Makefile
                  pyanaconda/modules/security/Makefile
                  pyanaconda/modules/timezone/Makefile
                  pyanaconda/modules/network/Makefile

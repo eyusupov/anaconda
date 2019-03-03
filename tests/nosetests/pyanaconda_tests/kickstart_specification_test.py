@@ -153,26 +153,6 @@ class KickstartSpecificationTestCase(unittest.TestCase):
         %end
         """))
 
-    def full_container_os_test(self):
-        """Test a full container os specification."""
-        specification = self.SpecificationE
-
-        self.parse_kickstart(specification, "")
-        self.parse_kickstart(specification, "skipx")
-        self.parse_kickstart(specification, "user --name John")
-        self.parse_kickstart(specification, "%packages\na\nb\nc\n%end")
-        self.parse_kickstart(specification, dedent("""
-        user --name John
-        skipx
-
-        %packages
-        x
-        y
-        z
-        %end
-        """))
-
-
         with self.assertRaises(KickstartParseError):
             self.parse_kickstart(specification, "xconfig")
 

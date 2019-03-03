@@ -1080,6 +1080,25 @@ class Keyboard(RemovedCommand):
         localization_proxy = LOCALIZATION.get_proxy()
         keyboard.write_keyboard_config(localization_proxy, util.getSysroot())
 
+class ContainerRegistries(RemovedCommand):
+    def __str__():
+        # TODO: call GenerateKickstart
+        pass
+
+class ContainerStorage(RemovedCommand):
+    def __str__():
+        # TODO: call GenerateKickstart
+        pass
+
+class ContainerBootImage(RemovedCommand):
+    def __str__():
+        # TODO: call GenerateKickstart
+        pass
+
+class ContainerBootOptions(RemovedCommand):
+    def __str__():
+        # TODO: call GenerateKickstart
+        pass
 
 ###
 ### %anaconda Section
@@ -1150,6 +1169,10 @@ commandMap = {
     "autopart": AutoPart,
     "btrfs": BTRFS,
     "bootloader": Bootloader,
+    "container_registries": ContainerRegistries,
+    "container_storage": ContainerStorage,
+    "container_boot_image": ContainerBootImage,
+    "container_boot_options": ContainerBootOptions,
     "clearpart": ClearPart,
     "eula": Eula,
     "fcoe": UselessCommand,
@@ -1347,8 +1370,6 @@ def parseKickstart(f, strict_mode=False, pass_to_boss=False):
         # We do not have an interface here yet, so we cannot use our error
         # handling callback.
         parsing_log.error(e)
-        
-        __import__('pdb').set_trace()
 
         # Print kickstart warnings in the strict mode.
         if strict_mode and kswarnings:
