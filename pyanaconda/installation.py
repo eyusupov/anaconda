@@ -297,19 +297,19 @@ def doInstall(storage, payload, ksdata):
 
     containers = CONTAINERS.get_proxy()
     # TODO - implement step conditions in the module
-    if (containers.Registries() or containers.Storage() or containers.BootImage()) is not None:
+    if (containers.Registries or containers.Storage or containers.BootImage) is not None:
         boot_container = TaskQueue("Boot container tasks", N_("Configuring boot container"))
         installation_queue.append(boot_container)
 
     # on install OS, initialize registries and storage for use by podman
-    if containers.Registries() is not None:
+    if containers.Registries is not None:
         boot_container.append(Task("Configure image registries", containers.ConfigureRegistries))
 
-    if containers.Storage() is not None:
+    if containers.Storage is not None:
         boot_container.append(Task("Configure containers storage", containers.ConfigureStorage))
 
     # If container boot image is set
-    if containers.BootImage() is not None:
+    if containers.BootImage is not None:
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
         util.setSysroot(containers.BootContainerMountPoint)
@@ -377,7 +377,7 @@ def doInstall(storage, payload, ksdata):
     installation_queue.append(post_install)
 
     # Commit boot container
-    if ksdata.container_boot_image.seen:
+    if containers.BootImage is not None:
         boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
         boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
         installation_queue.append(boot_container)
