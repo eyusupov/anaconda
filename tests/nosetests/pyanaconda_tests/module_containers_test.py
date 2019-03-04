@@ -1,4 +1,3 @@
-from pyanaconda import containers
 from configparser import ConfigParser
 import textwrap
 import json

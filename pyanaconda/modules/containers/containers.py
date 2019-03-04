@@ -5,6 +5,7 @@ from pyanaconda.core import util
 from pyanaconda.modules.common.base import KickstartModule
 from pyanaconda.modules.common.constants.services import CONTAINERS
 from .kickstart import ContainersKickstartSpecification
+from .containers_interface import ContainersInterface
 import json
 
 from pyanaconda.anaconda_loggers import get_module_logger
@@ -138,7 +139,7 @@ class ContainersModule(KickstartModule):
         return util.execWithCapture('buildah', 'pull', image)
 
     def create(self, image, container, options):
-        return util.execWithCapture('buildah', 'from', '--name', container, *options, image)
+        return util.execWithCapture('buildah', 'from', '--name', container, *(options + [image]))
 
     def mount(self, container):
         return util.execWithCapture('buildah', 'mount', container)
@@ -146,8 +147,8 @@ class ContainersModule(KickstartModule):
     def unmount(self, container):
         util.execWithRedirect('buildah', 'umount', container)
 
-    def run(self, container, options, command, args):
-        return util.execWithCapture('buildah', 'run', *options, container, command, args)
+    def container_run(self, container, options, command, args):
+        return util.execWithCapture('buildah', 'run', *(options + [container, command] + args))
 
     def commit(self, container, image):
         return util.execWithCapture('buildah', 'commit', '--rm', container, image)
