@@ -312,7 +312,7 @@ def doInstall(storage, payload, ksdata):
     if containers.BootImage != "":
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
-        util.setSysroot(containers.BootContainerMountPoint())
+        util.setSysroot(containers.BootContainerMountPoint)
 
     # Do packaging.
 
