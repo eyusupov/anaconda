@@ -54,11 +54,11 @@ class ContainersInterface(KickstartModuleInterface):
         return self.implementation.boot_container_mount_point
 
     @emits_properties_changed
-    def SetBootContainerMountPoint(self, boot_container_mount_point: Str):
-        self.implementation.set_boot_container_mount_point(boot_container_options)
+    def SetBootContainerMountPoint(self, mount_point: Str):
+        self.implementation.set_boot_container_mount_point(mount_point)
 
     def ConfigureRegistries(self):
-        self.implementation.configure_registires()
+        self.implementation.configure_registries()
 
     def ConfigureStorage(self):
         self.implementation.configure_storage()

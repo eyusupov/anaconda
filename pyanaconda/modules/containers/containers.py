@@ -28,7 +28,7 @@ class ContainersModule(KickstartModule):
         self._boot_image = ""
 
         self.boot_container_options_changed = Signal()
-        self._boot_container_options = ""
+        self._boot_container_options = []
 
         self._mount_point = ""
 
@@ -124,11 +124,14 @@ class ContainersModule(KickstartModule):
     def setup_boot_container(self):
         # TODO: move to constants
         self.create(self.boot_image, 'boot-container', self.boot_container_options)
-        self._mount_point = containers.mount('boot-container')
+        self._mount_point = self.mount('boot-container')
 
     @property
     def boot_container_mount_point(self):
         return self._mount_point
+
+    def set_boot_container_mount_point(self, mount_point):
+        self._mount_point = mount_point
 
     def commit_boot_container(self):
         # TODO: move to constants
@@ -137,20 +140,19 @@ class ContainersModule(KickstartModule):
         self.commit('boot-container', 'boot:latest')
 
     def pull(self, image):
-        return util.execWithCapture('buildah', 'pull', image)
+        return util.execWithCapture('buildah', ['pull', image])
 
     def create(self, image, container, options):
-        return util.execWithCapture('buildah', 'from', '--name', container, *(options + [image]))
+        return util.execWithCapture('buildah', ['from', '--name', container] + options + [image])
 
     def mount(self, container):
-        return util.execWithCapture('buildah', 'mount', container)
+        return util.execWithCapture('buildah', ['mount', container])
 
     def unmount(self, container):
-        util.execWithRedirect('buildah', 'umount', container)
+        util.execWithRedirect('buildah', ['umount', container])
 
     def container_run(self, container, options, command, args):
-        return util.execWithCapture('buildah', 'run', *(options + [container, command] + args))
+        return util.execWithCapture('buildah', ['run'] + options + [container, command] + args)
 
     def commit(self, container, image):
-        return util.execWithCapture('buildah', 'commit', '--rm', container, image)
-
+        return util.execWithCapture('buildah', ['commit', '--rm', container, image])
