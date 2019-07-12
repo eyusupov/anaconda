@@ -261,6 +261,7 @@ class AnacondaConfigurationTestCase(unittest.TestCase):
                 services.USERS,
                 services.PAYLOAD,
                 services.STORAGE,
-                services.SERVICES
+                services.SERVICES,
+                services.CONTAINERS
             ))
         )

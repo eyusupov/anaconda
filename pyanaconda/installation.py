@@ -302,14 +302,14 @@ def doInstall(storage, payload, ksdata):
         installation_queue.append(boot_container)
 
     # on install OS, initialize registries and storage for use by podman
-    if containers.Registries is not None:
+    if containers.Registries != "":
         boot_container.append(Task("Configure image registries", containers.ConfigureRegistries))
 
-    if containers.Storage is not None:
+    if containers.Storage != "":
         boot_container.append(Task("Configure containers storage", containers.ConfigureStorage))
 
     # If container boot image is set
-    if containers.BootImage is not None:
+    if containers.BootImage != "":
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
         util.setSysroot(containers.BootContainerMountPoint())
@@ -377,7 +377,7 @@ def doInstall(storage, payload, ksdata):
     installation_queue.append(post_install)
 
     # Commit boot container
-    if containers.BootImage is not None:
+    if containers.BootImage != "":
         boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
         boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
         installation_queue.append(boot_container)

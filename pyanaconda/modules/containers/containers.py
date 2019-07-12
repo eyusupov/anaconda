@@ -19,18 +19,18 @@ class ContainersModule(KickstartModule):
         super().__init__()
 
         self.registries_changed = Signal()
-        self._registries = None
+        self._registries = ""
 
         self.storage_changed = Signal()
         self._storage = {}
 
         self.boot_image_changed = Signal()
-        self._boot_image = None
+        self._boot_image = ""
 
         self.boot_container_options_changed = Signal()
-        self._boot_container_options = None
+        self._boot_container_options = ""
 
-        self._mount_point = None
+        self._mount_point = ""
 
     def publish(self):
         """Publish the module."""
@@ -126,6 +126,7 @@ class ContainersModule(KickstartModule):
         self.create(self.boot_image, 'boot-container', self.boot_container_options)
         self._mount_point = containers.mount('boot-container')
 
+    @property
     def boot_container_mount_point(self):
         return self._mount_point
 
