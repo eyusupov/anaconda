@@ -200,6 +200,14 @@ def doConfiguration(storage, payload, ksdata):
     if write_configs.task_count:
         configuration_queue.append(write_configs)
 
+    containers = CONTAINERS.get_proxy()
+    # Commit boot container
+    if containers.BootImage != "":
+        boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
+        boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
+        configuration_queue.append(boot_container)
+
+
     # notify progress tracking about the number of steps
     progress_init(configuration_queue.task_count)
     # log contents of the main task queue
@@ -319,7 +327,9 @@ def doInstall(storage, payload, ksdata):
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
         boot_container.append(UpdateSysrootTask("Set sysroot to container mount point", containers))
-
+        boot_container.append(Task("Mount filesystems",
+                                    task=storage.mount_filesystems,
+                                    task_kwargs = {"only_special_devs": True}))
     # Do packaging.
 
     # Discover information about realms to join to determine the need for additional packages.
@@ -381,12 +391,6 @@ def doInstall(storage, payload, ksdata):
     post_install = TaskQueue("Post-installation setup tasks", (N_("Performing post-installation setup tasks")))
     post_install.append(Task("Run post-installation setup tasks", payload.postInstall))
     installation_queue.append(post_install)
-
-    # Commit boot container
-    if containers.BootImage != "":
-        boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
-        boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
-        installation_queue.append(boot_container)
 
     # Create snapshot
     if ksdata.snapshot and ksdata.snapshot.has_snapshot(SNAPSHOT_WHEN_POST_INSTALL):

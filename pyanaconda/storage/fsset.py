@@ -498,7 +498,7 @@ class FSSet(object):
                 else:
                     break
 
-    def mount_filesystems(self, root_path="", read_only=None, skip_root=False):
+    def mount_filesystems(self, root_path="", read_only=None, skip_root=False, only_special_devs=False):
         """Mount the system's filesystems.
 
         :param str root_path: the root directory for this filesystem
@@ -506,7 +506,9 @@ class FSSet(object):
         :type read_only: str or None
         :param bool skip_root: whether to skip mounting the root filesystem
         """
-        devices = list(self.mountpoints.values()) + self.swap_devices
+        devices = []
+        if not only_special_devs:
+            devices.extend(list(self.mountpoints.values()) + self.swap_devices)
         devices.extend([self.dev, self.devshm, self.devpts, self.sysfs,
                         self.proc, self.selinux, self.usb, self.run])
         if isinstance(_platform, EFI):

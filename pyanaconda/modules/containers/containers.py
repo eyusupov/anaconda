@@ -161,7 +161,7 @@ class ContainersModule(KickstartModule):
 
     def commit_boot_container(self):
         # TODO: move to constants
-        self.unmount('boot-container')
+        #self.unmount('boot-container')
         # TODO: make configurable
         self.commit('boot-container', 'boot:latest')
 
@@ -172,7 +172,7 @@ class ContainersModule(KickstartModule):
         return util.execWithCapture('buildah', ['from', '--name', container] + options + [image])
 
     def mount(self, container):
-        return util.execWithCapture('buildah', ['mount', container])
+        return util.execWithCapture('buildah', ['mount', container]).strip() + "/"
 
     def unmount(self, container):
         util.execWithRedirect('buildah', ['umount', container])

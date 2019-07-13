@@ -700,9 +700,11 @@ class InstallerStorage(Blivet):
     def turn_on_swap(self):
         self.fsset.turn_on_swap(root_path=util.getSysroot())
 
-    def mount_filesystems(self, read_only=None, skip_root=False):
+    def mount_filesystems(self, read_only=None, skip_root=False, only_special_devs=False):
         self.fsset.mount_filesystems(root_path=util.getSysroot(),
-                                     read_only=read_only, skip_root=skip_root)
+                                     read_only=read_only,
+                                     skip_root=skip_root,
+                                     only_special_devs=only_special_devs)
 
     def umount_filesystems(self, swapoff=True):
         self.fsset.umount_filesystems(swapoff=swapoff)
