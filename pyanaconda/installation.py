@@ -66,6 +66,14 @@ class WriteResolvConfTask(Task):
         """
         network.copyFileToPath("/etc/resolv.conf", util.getSysroot())
 
+class UpdateSysrootTask(Task):
+    def __init__(self, name, containers):
+        super().__init__(name)
+        self._containers = containers
+
+    def run_task(self):
+        util.setSysroot(self._containers.BootContainerMountPoint)
+
 
 def _writeKS(ksdata):
     path = util.getSysroot() + "/root/anaconda-ks.cfg"
@@ -310,7 +318,7 @@ def doInstall(storage, payload, ksdata):
     if containers.BootImage:
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
-        boot_container.append(Task("Set sysroot to container mount point", util.setSysroot, (containers.BootContainerMountPoint,)))
+        boot_container.append(UpdateSysrootTask("Set sysroot to container mount point", containers))
 
     # Do packaging.
 
