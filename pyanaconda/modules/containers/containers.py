@@ -1,12 +1,12 @@
 from pyanaconda.dbus import DBus
 from pyanaconda.core.signal import Signal
-from configparser import ConfigParser
 from pyanaconda.core import util
 from pyanaconda.modules.common.base import KickstartModule
 from pyanaconda.modules.common.constants.services import CONTAINERS
 from .kickstart import ContainersKickstartSpecification
 from .containers_interface import ContainersInterface
 import json
+import toml
 
 from pyanaconda.anaconda_loggers import get_module_logger
 log = get_module_logger(__name__)
@@ -18,8 +18,11 @@ class ContainersModule(KickstartModule):
     def __init__(self):
         super().__init__()
 
-        self.registries_changed = Signal()
-        self._registries = ""
+        self.search_registries_changed = Signal()
+        self._search_registries = []
+
+        self.insecure_registries_changed = Signal()
+        self._insecure_registries = []
 
         self.storage_changed = Signal()
         self._storage = {}
@@ -46,8 +49,11 @@ class ContainersModule(KickstartModule):
     def process_kickstart(self, data):
         """Process the kickstart data."""
         log.debug("Processing kickstart data...")
-        if data.containerregistries.seen:
-            self.set_registries(data.containerregistries.urls)
+        if data.containerregistries.search:
+            self.set_search_registries(data.containerregistries.search)
+
+        if data.containerregistries.insecure:
+            self.set_insecure_registries(data.containerregistries.insecure)
 
         if data.containerstorage.seen:
             self.set_storage(data.containerstorage.options)
@@ -65,12 +71,20 @@ class ContainersModule(KickstartModule):
         return str(data)
 
     @property
-    def registries(self):
-        return self._registries
+    def search_registries(self):
+        return self._search_registries
 
-    def set_registries(self, registries):
-        self._registries = list(registries)
-        self.registries_changed.emit()
+    def set_search_registries(self, registries):
+        self._search_registries = registries
+        self.search_registries_changed.emit()
+
+    @property
+    def insecure_registries(self):
+        return self._insecure_registries
+
+    def set_insecure_registries(self, registries):
+        self._insecure_registries = registries
+        self.insecure_registries_changed.emit()
 
     @property
     def storage(self):
@@ -98,24 +112,31 @@ class ContainersModule(KickstartModule):
 
     def configure_registries(self, path='/etc/containers/registries.conf'):
         # TODO: keep formatting
-        config = ConfigParser()
-        config.read(path)
-        config.set('registries.search', 'registries', json.dumps(self.registries))
+        config = toml.load(path)
+
+        if self.search_registries:
+            config['registries']['search']['registries'] = self.search_registries
+
+        if self.insecure_registries:
+            config['registries']['insecure']['registries'] = self.insecure_registries
+
         with open(path, 'w') as f:
-            config.write(f)
+            toml.dump(config, f)
 
     def configure_storage(self, path='/etc/containers/storage.conf'):
         # TODO: keep formatting
-        config = ConfigParser()
-        config.read(path)
+        config = toml.load(path)
 
         for key, value in self.storage.items():
-            section, _sep, key = key.rpartition('.')
-            section = "storage." + section if section else "storage"
-            config.set(section, key, json.dumps(value))
+            sections, _sep, key = key.rpartition('.')
+            parent = config['storage']
+            if sections:
+                for section in sections.split('.'):
+                    parent = parent[section]
+            parent[key] = value
 
         with open(path, 'w') as f:
-            config.write(f)
+            toml.dump(config, f)
 
     def pull_boot_image(self):
         # TODO: implement as payload

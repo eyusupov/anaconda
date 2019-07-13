@@ -1,4 +1,4 @@
-from configparser import ConfigParser
+import toml
 import textwrap
 import json
 import unittest
@@ -40,16 +40,23 @@ class ContainersInterfaceTestCase(unittest.TestCase):
         self.callback.assert_not_called()
 
     def default_property_values_test(self):
-        self.assertEqual(self.interface.Registries, None)
+        self.assertEqual(self.interface.SearchRegistries, [])
+        self.assertEqual(self.interface.InsecureRegistries, [])
         self.assertEqual(self.interface.Storage, {})
-        self.assertEqual(self.interface.BootImage, None)
-        self.assertEqual(self.interface.BootContainerOptions, None)
+        self.assertEqual(self.interface.BootImage, '')
+        self.assertEqual(self.interface.BootContainerOptions, [])
 
-    def set_registries_test(self):
+    def set_insecure_registries_test(self):
         registries = ['registry.fedoraproject.org', 'quay.io']
-        self.interface.SetRegistries(registries)
-        self.assertEqual(self.interface.Registries, registries)
-        self.callback.assert_called_once_with(CONTAINERS.interface_name, {'Registries': registries}, [])
+        self.interface.SetInsecureRegistries(registries)
+        self.assertEqual(self.interface.InsecureRegistries, registries)
+        self.callback.assert_called_once_with(CONTAINERS.interface_name, {'InsecureRegistries': registries}, [])
+
+    def set_search_registries_test(self):
+        registries = ['registry.fedoraproject.org', 'quay.io']
+        self.interface.SetSearchRegistries(registries)
+        self.assertEqual(self.interface.SearchRegistries, registries)
+        self.callback.assert_called_once_with(CONTAINERS.interface_name, {'SearchRegistries': registries}, [])
 
     def set_storage_test(self):
         self.interface.SetStorage(STORAGE)
@@ -68,8 +75,9 @@ class ContainersInterfaceTestCase(unittest.TestCase):
         self.callback.assert_called_once_with(CONTAINERS.interface_name, {'BootContainerOptions': BOOT_CONTAINER_OPTIONS}, [])
 
     def ks_registries_test(self):
-        self.interface.ReadKickstart('container_registries localhost:8000 registry.fedoraproject.org')
-        self.assertEqual(self.interface.Registries, ['localhost:8000', 'registry.fedoraproject.org'])
+        self.interface.ReadKickstart('container_registries --search localhost:8000,registry.fedoraproject.org --insecure localhost:8000')
+        self.assertEqual(self.interface.SearchRegistries, ['localhost:8000', 'registry.fedoraproject.org'])
+        self.assertEqual(self.interface.InsecureRegistries, ['localhost:8000'])
 
     def ks_storage_test(self):
         self.interface.ReadKickstart('container_storage runroot=/var/lib/containers graphroot=/var/run/containers driver=overlay')
@@ -96,6 +104,8 @@ class ContainersTestCase(unittest.TestCase):
             f.write(textwrap.dedent("""\
                     [registries.search]
                     registries = ["quay.io"]
+                    [registries.insecure]
+                    registries = ["localhost"]
                     [registries.block]
                     registries = ["docker.io"]
                     """))
@@ -113,18 +123,18 @@ class ContainersTestCase(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
-        pass
 
     def test_configure_registries_test(self):
-        self.module.set_registries(['registry.fedoraproject.org', 'registry.centos.org'])
+        self.module.set_search_registries(['registry.fedoraproject.org', 'localhost:5000'])
+        self.module.set_insecure_registries(['localhost:5000'])
 
         self.module.configure_registries(path=self.registries_conf)
 
-        config = ConfigParser()
-        config.read(self.registries_conf)
+        config = toml.load(self.registries_conf)
 
-        self.assertEqual(config.get('registries.search', 'registries'), json.dumps(self.module.registries))
-        self.assertEqual(config.get('registries.block', 'registries'), json.dumps(['docker.io']))
+        self.assertEqual(config['registries']['search']['registries'], self.module.search_registries)
+        self.assertEqual(config['registries']['insecure']['registries'], self.module.insecure_registries)
+        self.assertEqual(config['registries']['block']['registries'], ['docker.io'])
 
     def test_configure_storage_test(self):
         additional_stores = [
@@ -140,10 +150,9 @@ class ContainersTestCase(unittest.TestCase):
 
         self.module.configure_storage(path=self.storage_conf)
 
-        config = ConfigParser()
-        config.read(self.storage_conf)
+        config = toml.load(self.storage_conf)
 
-        self.assertEqual(config.get('storage', 'graphroot'), '"/storage"')
-        self.assertEqual(config.get('storage', 'runroot'), '"/var/run/containers/storage"')
-        self.assertEqual(config.get('storage.options', 'size'), '"10G"')
-        self.assertEqual(config.get('storage.options', 'additionalimagestores'), json.dumps(additional_stores))
+        self.assertEqual(config['storage']['graphroot'], '/storage')
+        self.assertEqual(config['storage']['runroot'], '/var/run/containers/storage')
+        self.assertEqual(config['storage']['options']['size'], '10G')
+        self.assertEqual(config['storage']['options']['additionalimagestores'], additional_stores)

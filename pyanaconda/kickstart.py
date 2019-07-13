@@ -52,7 +52,7 @@ from pyanaconda.flags import flags
 from pyanaconda.core.i18n import _
 from pyanaconda.modules.common.errors.kickstart import SplitKickstartError
 from pyanaconda.modules.common.constants.services import BOSS, TIMEZONE, LOCALIZATION, SECURITY, \
-    USERS, SERVICES, STORAGE, NETWORK
+    USERS, SERVICES, STORAGE, NETWORK, CONTAINERS
 from pyanaconda.modules.common.constants.objects import DISK_INITIALIZATION, BOOTLOADER, FIREWALL
 from pyanaconda.modules.common.structures.realm import RealmData
 from pyanaconda.modules.common.task import sync_run_task
@@ -1081,24 +1081,24 @@ class Keyboard(RemovedCommand):
         keyboard.write_keyboard_config(localization_proxy, util.getSysroot())
 
 class ContainerRegistries(RemovedCommand):
-    def __str__():
+    def __str__(self):
         # TODO: call GenerateKickstart
-        pass
+        return ""
 
 class ContainerStorage(RemovedCommand):
-    def __str__():
+    def __str__(self):
         # TODO: call GenerateKickstart
-        pass
+        return ""
 
 class ContainerBootImage(RemovedCommand):
-    def __str__():
+    def __str__(self):
         # TODO: call GenerateKickstart
-        pass
+        return ""
 
 class ContainerBootOptions(RemovedCommand):
-    def __str__():
+    def __str__(self):
         # TODO: call GenerateKickstart
-        pass
+        return ""
 
 ###
 ### %anaconda Section

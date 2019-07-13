@@ -12,18 +12,27 @@ class ContainersInterface(KickstartModuleInterface):
     def connect_signals(self):
         """Connect signals to the implementation."""
         super().connect_signals()
-        self.implementation.registries_changed.connect(self.changed('Registries'))
+        self.implementation.search_registries_changed.connect(self.changed('SearchRegistries'))
+        self.implementation.insecure_registries_changed.connect(self.changed('InsecureRegistries'))
         self.implementation.storage_changed.connect(self.changed('Storage'))
         self.implementation.boot_image_changed.connect(self.changed('BootImage'))
         self.implementation.boot_container_options_changed.connect(self.changed('BootContainerOptions'))
 
     @property
-    def Registries(self) -> List[Str]:
-        return self.implementation.registries
+    def SearchRegistries(self) -> List[Str]:
+        return self.implementation.search_registries
 
     @emits_properties_changed
-    def SetRegistries(self, registries: List[Str]):
-        self.implementation.set_registries(registries)
+    def SetSearchRegistries(self, registries: List[Str]):
+        self.implementation.set_search_registries(registries)
+
+    @property
+    def InsecureRegistries(self) -> List[Str]:
+        return self.implementation.insecure_registries
+
+    @emits_properties_changed
+    def SetInsecureRegistries(self, registries: List[Str]):
+        self.implementation.set_insecure_registries(registries)
 
     @property
     def Storage(self) -> Dict[Str, Str]:
