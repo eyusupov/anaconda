@@ -149,6 +149,7 @@ class ContainersModule(KickstartModule):
         # TODO: move to constants
         self.create(self.boot_image, 'boot-container', self.boot_container_options)
         self._mount_point = self.mount('boot-container')
+        log.info("Container mount point is %s" % self._mount_point)
 
     @property
     def boot_container_mount_point(self):

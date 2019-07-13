@@ -109,6 +109,7 @@ def getSysroot():
     For ordinary package-based installations, this is the same as the
     target root.
     """
+    log.info("_sysroot is %s" % _sysroot)
     if _sysroot:
         return _sysroot
 
@@ -123,6 +124,7 @@ def setSysroot(path):
     systems to non-default roots.
     """
     global _sysroot
+    log.info("Setting sysroot to %s" % _sysroot)
     _sysroot = path
 
 
