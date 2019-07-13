@@ -266,8 +266,8 @@ def startX(argv, output_redirect=None, timeout=X_TIMEOUT):
         signal.signal(signal.SIGALRM, old_sigalrm_handler)
 
 
-def _run_program(argv, root='/', stdin=None, stdout=None, env_prune=None, log_output=True,
-                 binary_output=False, filter_stderr=False):
+def _run_program(argv, root='/', stdin=None, stdout=None, env_add=None, env_prune=None,
+                 log_output=True, binary_output=False, filter_stderr=False):
     """ Run an external program, log the output and return it to the caller
 
         NOTE/WARNING: UnicodeDecodeError will be raised if the output of the of the
@@ -290,7 +290,7 @@ def _run_program(argv, root='/', stdin=None, stdout=None, env_prune=None, log_ou
             stderr = subprocess.STDOUT
 
         proc = startProgram(argv, root=root, stdin=stdin, stdout=subprocess.PIPE, stderr=stderr,
-                            env_prune=env_prune)
+                            env_add=env_add,env_prune=env_prune)
 
         (output_string, err_string) = proc.communicate()
         if not binary_output:
@@ -366,7 +366,8 @@ def execWithRedirect(command, argv, stdin=None, stdout=None,
                         log_output=log_output, binary_output=binary_output)[0]
 
 
-def execWithCapture(command, argv, stdin=None, root='/', log_output=True, filter_stderr=False):
+def execWithCapture(command, argv, stdin=None, env_add=None,
+                    root='/', log_output=True, filter_stderr=False):
     """ Run an external program and capture standard out and err.
 
         :param command: The command to run
@@ -378,8 +379,8 @@ def execWithCapture(command, argv, stdin=None, root='/', log_output=True, filter
         :return: The output of the command
     """
     argv = [command] + argv
-    return _run_program(argv, stdin=stdin, root=root, log_output=log_output,
-                        filter_stderr=filter_stderr)[1]
+    return _run_program(argv, stdin=stdin, root=root, env_add=env_add,
+                        log_output=log_output, filter_stderr=filter_stderr)[1]
 
 
 def execWithCaptureBinary(command, argv, stdin=None, root='/', log_output=False, filter_stderr=False):

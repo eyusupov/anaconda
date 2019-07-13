@@ -709,6 +709,9 @@ class InstallerStorage(Blivet):
     def umount_filesystems(self, swapoff=True):
         self.fsset.umount_filesystems(swapoff=swapoff)
 
+    def umount_pseudo_filesystems(self):
+        self.fsset.umount_pseudo_filesystems()
+
     def parse_fstab(self, chroot=None):
         self.fsset.parse_fstab(chroot=chroot)
 

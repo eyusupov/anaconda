@@ -29,6 +29,7 @@ from blivet.devices import NoDevice, DirectoryDevice, NFSDevice, FileDevice, MDR
 from blivet.errors import UnrecognizedFSTabEntryError, FSTabTypeMismatchError, StorageError
 from blivet.formats import get_format, get_device_format_class
 from blivet.storage_log import log_exception_info
+from blivet.util import umount
 
 from pyanaconda.core import util
 from pyanaconda.errors import errorHandler as error_handler, ERROR_RAISE
@@ -586,6 +587,12 @@ class FSSet(object):
             device.format.teardown()
 
         self.active = False
+
+    def umount_pseudo_filesystems(self):
+        root = util.getSysroot()
+        for dev in [self.dev, self.devshm, self.devpts, self.sysfs,
+                self.proc, self.usb, self.selinux, self.run]:
+            umount(os.path.normpath("%s/%s" % (root, dev.mountpoint)))
 
     def create_swap_file(self, device, size):
         """Create and activate a swap file under storage root."""

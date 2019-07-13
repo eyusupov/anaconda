@@ -6,6 +6,7 @@ from pyanaconda.modules.common.constants.services import CONTAINERS
 from .kickstart import ContainersKickstartSpecification
 from .containers_interface import ContainersInterface
 import json
+import os
 import toml
 
 from pyanaconda.anaconda_loggers import get_module_logger
@@ -181,4 +182,6 @@ class ContainersModule(KickstartModule):
         return util.execWithCapture('buildah', ['run'] + options + [container, command] + args)
 
     def commit(self, container, image):
-        return util.execWithCapture('buildah', ['commit', '--rm', container, image])
+        tmpdir = os.path.normpath("%s/%s" % (util.getTargetPhysicalRoot(), "tmp"))
+        return util.execWithCapture('buildah', ['commit', '--rm', container, image],
+                                    env_add={"TMPDIR": tmpdir})

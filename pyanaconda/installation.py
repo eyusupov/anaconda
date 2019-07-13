@@ -204,6 +204,7 @@ def doConfiguration(storage, payload, ksdata):
     # Commit boot container
     if containers.BootImage != "":
         boot_container = TaskQueue("Commit boot container", (N_("Committing boot container")))
+        boot_container.append(Task("Unmount pseudo file systems", storage.umount_pseudo_filesystems))
         boot_container.append(Task("Commit boot container", containers.CommitBootContainer))
         configuration_queue.append(boot_container)
 
