@@ -69,8 +69,8 @@ class ContainersInterface(KickstartModuleInterface):
     def ConfigureRegistries(self):
         self.implementation.configure_registries()
 
-    def ConfigureStorage(self):
-        self.implementation.configure_storage()
+    def ConfigureStorage(self, prefix: Str):
+        self.implementation.configure_storage(prefix=prefix)
 
     def PullBootImage(self):
         self.implementation.pull_boot_image()

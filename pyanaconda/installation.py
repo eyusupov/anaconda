@@ -305,12 +305,12 @@ def doInstall(storage, payload, ksdata):
         boot_container.append(Task("Configure image registries", containers.ConfigureRegistries))
 
     if containers.Storage:
-        boot_container.append(Task("Configure containers storage", containers.ConfigureStorage))
+        boot_container.append(Task("Configure containers storage", containers.ConfigureStorage, (util.getSysroot(),)))
 
     if containers.BootImage:
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
-        util.setSysroot(containers.BootContainerMountPoint)
+        boot_container.append(Task("Set sysroot to container mount point", util.setSysroot, (containers.BootContainerMountPoint,)))
 
     # Do packaging.
 

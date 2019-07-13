@@ -123,7 +123,7 @@ class ContainersModule(KickstartModule):
         with open(path, 'w') as f:
             toml.dump(config, f)
 
-    def configure_storage(self, path='/etc/containers/storage.conf'):
+    def configure_storage(self, path='/etc/containers/storage.conf', prefix=''):
         # TODO: keep formatting
         config = toml.load(path)
 
@@ -134,6 +134,9 @@ class ContainersModule(KickstartModule):
                 for section in sections.split('.'):
                     parent = parent[section]
             parent[key] = value
+
+        config['storage']['runroot'] = prefix + config['storage']['runroot']
+        config['storage']['graphroot'] = prefix + config['storage']['graphroot']
 
         with open(path, 'w') as f:
             toml.dump(config, f)
