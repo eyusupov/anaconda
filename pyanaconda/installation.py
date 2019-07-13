@@ -297,19 +297,17 @@ def doInstall(storage, payload, ksdata):
 
     containers = CONTAINERS.get_proxy()
     # TODO - implement step conditions in the module
-    if (containers.Registries or containers.Storage or containers.BootImage) is not None:
+    if containers.SearchRegistries or containers.InsecureRegistries or containers.Storage or containers.BootImage:
         boot_container = TaskQueue("Boot container tasks", N_("Configuring boot container"))
         installation_queue.append(boot_container)
 
-    # on install OS, initialize registries and storage for use by podman
-    if containers.Registries != "":
+    if containers.SearchRegistries or containers.InsecureRegistries:
         boot_container.append(Task("Configure image registries", containers.ConfigureRegistries))
 
-    if containers.Storage != "":
+    if containers.Storage:
         boot_container.append(Task("Configure containers storage", containers.ConfigureStorage))
 
-    # If container boot image is set
-    if containers.BootImage != "":
+    if containers.BootImage:
         boot_container.append(Task("Pull boot container image", containers.PullBootImage))
         boot_container.append(Task("Setup boot container", containers.SetupBootContainer))
         util.setSysroot(containers.BootContainerMountPoint)
